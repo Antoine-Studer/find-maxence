@@ -71,34 +71,6 @@ window.addEventListener("load", async function () {
 });
 
 const times: number[] = [];
-let fps: number;
-const fpsCounterElement: HTMLParagraphElement = document.getElementById(
-  "fpsCounter",
-) as HTMLParagraphElement;
-
-function fpsCounter() {
-  requestAnimationFrame(() => {
-    const now = performance.now();
-    while (times.length > 0 && times[0] <= now - 1000) {
-      times.shift();
-    }
-    times.push(now);
-    fps = times.length;
-    fpsCounter();
-  });
-}
-
-setInterval(() => {
-  realFPS = fps;
-  if (settings.showFPS) {
-    fpsCounterElement.hidden = false;
-    fpsCounterElement.textContent = `FPS: ${realFPS}`;
-  } else {
-    fpsCounterElement.hidden = true;
-  }
-}, 1000);
-
-fpsCounter();
 
 function toggleFullscreen() {
   if (!document.fullscreenElement) {
@@ -142,16 +114,37 @@ document.addEventListener("MSFullscreenChange", updateFullscreenButton);
 document
   .getElementById("startButton")
   ?.addEventListener("click", () => start());
-document
-  .getElementById("applySettingsButton")
-  ?.addEventListener("click", () => {
-    settingsManager.applySettings();
-  });
+
+
+function showPauseMenu() {
+  gameInstance.pause();
+  document.getElementById('pauseMenu')!.style.display = 'flex';
+}
+function hidePauseMenu() {
+  gameInstance.resume();
+  document.getElementById('pauseMenu')!.style.display = 'none';
+}
+
+document.getElementById('pauseButton')?.addEventListener('click', showPauseMenu);
+document.getElementById('resumeButton')?.addEventListener('click', hidePauseMenu);
+
+// Listen for Escape key to open/close pause menu
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const pauseMenu = document.getElementById('pauseMenu');
+    if (pauseMenu?.style.display === 'flex') {
+      hidePauseMenu();
+    } else {
+      showPauseMenu();
+    }
+  }
+});
 
 async function start() {
   (
     document.getElementById("startButton") as HTMLButtonElement
   ).style.visibility = "hidden";
+  document.getElementById("pauseButton")!.style.display = "block";
 
   const played = await audioManager.play("music");
   if (!played) {

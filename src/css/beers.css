@@ -1,0 +1,82 @@
+
+#bieresContainer {
+  position: relative; /* Added for absolute positioning of #girafeNumber */
+}
+
+#girafeContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+@media (max-width: 700px) {
+  #girafeContainer {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 10px;
+  }
+  .girafe-wrapper {
+    margin-bottom: 0;
+    margin-right: 10px;
+  }
+}
+
+.girafe-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+#girafe {
+  display: none;
+  width: 100%;
+  position: relative; /* Pour que #girafeNumber soit positionné par rapport à la girafe */
+}
+
+#girafeNumber {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2vw;
+  color: red !important;
+  font-weight: bold !important;
+  pointer-events: none;
+  z-index: 2;
+  font-family: 'Comic Sans', Courier, monospace !important;
+  text-shadow: 
+    -1px -1px 0 black,  
+     1px -1px 0 black,  
+    -1px  1px 0 black,  
+     1px  1px 0 black;
+  margin: 0;
+  /* Optionnel : pour éviter tout décalage vertical */
+  line-height: 1;
+}
+
+.biere {
+  width: 10vw;
+  max-width: 60%;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  display: none;
+  box-sizing: border-box;
+}
+
+@media (max-width: 800px) {
+  .biere {
+    width: 10vw;
+    max-width: 100px;
+  }
+}
+
+@media (max-width: 500px) {
+  .biere {
+    width: 14vw;
+    max-width: 28px;
+  }
+}
+

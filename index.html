@@ -19,44 +19,71 @@
     <meta property="og:title" content="Find Luigi" />
     <meta property="og:url" content="https://findluigi.samola.net" />
     <meta name="theme-color" content="#4cbb17" />
-    <title>Find Luigi</title>
+    <title>Find Maxence</title>
     <link rel="stylesheet" href="src/css/style.css" />
-    <link rel="icon" type="image/png" href="img/favicon.png" />
+    <link rel="stylesheet" href="src/css/beers.css" />
+    <link rel="stylesheet" href="src/css/leaderboard.css" />
+    <link rel="stylesheet" href="src/css/gameover.css" />
+    <link rel="stylesheet" href="src/css/pause.css" />
+    <link rel="icon" type="image/png" href="img/maxence.ico" />
     <script type="module" defer src="src/ts/app.ts"></script>
   </head>
   <body>
-    <p id="fpsCounter">FPS: 0</p>    <div id="game">
+    <div id="game">
       <div id="gameStats">
-        <h3>Game Status</h3>
-        <div>
-          <span>Time:</span>
-          <span id="time-remaining">60</span>
-        </div>
-        <div>
-          <span>Level:</span>
-          <span id="level-number">0</span>
-        </div>
-        <div>
-          <span>Target:</span>
-          <span>Find Maxence</span>
-        </div>
-        <div>
-          <span>Success:</span>
-          <span>+5 seconds</span>
-        </div>
-        <div>
-          <span>Mistake:</span>
-          <span>-10 seconds</span>
+        <h3>Score</h3>
+        <div id="bieresContainer">
+          <div id="girafeContainer">
+            <div class="girafe-wrapper">
+              <img id="girafe" src="img/score/girafe.png" alt="Girafe" />
+              <span id="girafeNumber"></span>
+            </div>
+            <img id="biere-0" class="biere" src="img/score/pinte.png" alt="Biere" />
+            <img id="biere-1" class="biere" src="img/score/pinte.png" alt="Biere" />
+            <img id="biere-2" class="biere" src="img/score/pinte.png" alt="Biere" />
+            <img id="biere-3" class="biere" src="img/score/pinte.png" alt="Biere" />
+            <img id="biere-4" class="biere" src="img/score/pinte.png" alt="Biere" />
+          </div>
         </div>
       </div>
-      <button id="fullscreenButton">Fullscreen</button>
+      <div id="timer">
+          <span id="timeRemaining">60</span>
+      </div>
+      <button id="pauseButton">Pause</button>
       <div id="unfocusedNotice">
         <h1>OUT OF FOCUS</h1>
         <p>Click to return to Find Luigi</p>
       </div>
-      <div id="gameOver">
+      <div id="pauseMenu">
+        <h1>Paused</h1>
+        <div class="pause-buttons">
+          <div id="leaderboard-container">
+            <h3>Records</h3>
+            <div id="leaderboard">
+              <div class="leaderboard-entry">
+              </div>
+            </div>
+          </div>
+          <button id="resumeButton">Resume</button>
+          <button class="restart-button">Restart</button>
+        </div>
+      </div>
+      <div id="gameOver" class="gameOver">
         <h1>Game Over</h1>
-        <button id="restartButton">Play again</button>
+        <div class="gameOver-buttons">
+          <button id="saveScore">Save Score</button>
+          <button class="restart-button">Play again</button>
+        </div>
+      </div>
+      <div id="gameOverForm" class="gameOver">
+        <h1>Game Over</h1>
+        <div id="scoreRow">Your score: <span id="score"></span></div>
+        <div class="form-row-horizontal">
+          <label for="name">Enter your name:</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+        <button id="submit" type="submit">Submit</button>
+        <button id="cancel" type="button">Cancel</button>
       </div>
       <div id="gameCanvasContainer">
         <canvas id="gameCanvas"></canvas>
@@ -64,140 +91,37 @@
       <button id="startButton">Click to start</button>
     </div>
 
-    <h1 id="settings">Characters</h1>
-    <div id="settings">
-      <label>
-        Timothee
-        <input type="checkbox" checked="true" id="useTimotheeCheckbox" />
-      </label>
-      <label>
-        Valentin
-        <input type="checkbox" checked="true" id="useValentinCheckbox" />
-      </label>
-      <label>
-        Lucas
-        <input type="checkbox" checked="false" id="useLucasCheckbox" />
-      </label>
-      <label>
-        Antoine
-        <input type="checkbox" checked="false" id="useAntoineCheckbox" />
-      </label>
-    </div>
+    
 
-    <h1 id="settings">Game settings</h1>
-    <div id="settings">
-      <label class="info-label">
-        <span>
-          Shuffle character layers
-          <img
-            src="img/info-icon.svg"
-            title="Shuffles image layers to make sure that not all Valentin's are on top of Mario's, not all Mario's are on top of Valentin's, etc."
-            class="label-info-icon"
-        /></span>
-        <input type="checkbox" checked="true" id="shuffleLayersCheckbox" />
-      </label>
-      <label class="info-label">
-        <span>
-          Use interpolation
-          <img
-            src="img/info-icon.svg"
-            title="Smooths out image movement (useful for movement thresholds above 3, may slightly impact performance)"
-            class="label-info-icon"
-        /></span>
-        <input type="checkbox" id="useInterpolationCheckbox" />
-      </label>
-      <label class="info-label">
-        <span>
-          Show FPS
-          <img
-            src="img/info-icon.svg"
-            title="Note: By default, Find Luigi (and most other websites) are capped at your monitor's refresh rate"
-            class="label-info-icon"
-        /></span>
-        <input type="checkbox" checked="true" id="showFPSCheckbox" />
-      </label>
-      <label class="info-label">
-        <span>
-          Movement threshold
-          <img
-            src="img/info-icon.svg"
-            title="How many pixels a character must move before updating"
-            class="label-info-icon"
-        /></span>
-        <input
-          type="text"
-          placeholder="Input number"
-          value="1"
-          min="0"
-          oninput="this.value =
- !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null"
-          id="movementThresholdField"
-        />
-      </label>
-      <label class="info-label">
-        <span>
-          Minimum characters
-          <img
-            src="img/info-icon.svg"
-            title="Minimum amount of character that can appear on screen"
-            class="label-info-icon"
-        /></span>
-        <input
-          type="text"
-          placeholder="Input number"
-          value="50"
-          min="1"
-          max="500"
-          oninput="this.value =
- !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null"
-          id="minimumIconsField"
-        />
-      </label>
-      <label class="info-label">
-        <span>
-          Maximum characters
-          <img
-            src="img/info-icon.svg"
-            title="Maximum amount of character that can appear on screen"
-            class="label-info-icon"
-        /></span>
-        <input
-          type="text"
-          placeholder="Input number"
-          value="100"
-          min="1"
-          max="500"
-          oninput="this.value =
- !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null"
-          id="maximumIconsField"
-        />
-      </label>
-      <label id="speedFieldLabel">
-        Speed (value: 200)
-        <input
-          type="range"
-          id="speedField"
-          value="200"
-          step="50"
-          min="50"
-          max="1000"
-        />
-      </label>
-    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const leaderboard = document.getElementById("leaderboard");
+        let place = 1;
+        fetch("http://localhost:3000/leaderboard")
+          .then((response) => response.json())
+          .then((data) => {
+            data.forEach((entry) => {
+              const entryDiv = document.createElement("div");
+              entryDiv.className = "leaderboard-entry";
+              entryDiv.innerHTML = `<span class="name place-${place}">${entry.name}</span><span class="score">${entry.score}</span>`;
+              leaderboard.appendChild(entryDiv);
+              place++;
+            });
+          })
+          .catch((error) => console.error("Error fetching leaderboard:", error));
+      });
 
-    <h1 id="settings">Audio settings</h1>
-    <div id="settings">
-      <label>
-        Music
-        <input type="checkbox" checked="true" id="musicCheckbox" />
-      </label>
-      <label>
-        SFX
-        <input type="checkbox" checked="true" id="sfxCheckbox" />
-      </label>
-    </div>
-
-    <button id="applySettingsButton">Apply settings</button>
+      document.getElementById("saveScore").addEventListener('click', () => {
+        document.getElementById("gameOverForm").style.display = "block";
+        document.getElementById("gameOver").style.display = "none";
+        document.getElementById('saveScore').style.display = "none"; // Hide the submit button  
+      });
+      document.getElementById("cancel").addEventListener('click', () => {
+        document.getElementById("gameOverForm").style.display = "none";
+        document.getElementById("gameOver").style.display = "block";
+        document.getElementById('saveScore').style.display = "block"; // Show the submit button again
+      });
+    </script>
 
     <footer>
       <nav id="icon-links">

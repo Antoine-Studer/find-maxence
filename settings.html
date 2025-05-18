@@ -1,0 +1,142 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="src/css/style.css" />
+    </head>
+
+    <body>
+
+        <h1 id="settings">Characters</h1>
+        <div id="settings">
+        <label>
+            Timothee
+            <input type="checkbox" checked="true" id="useTimotheeCheckbox" />
+        </label>
+        <label>
+            Valentin
+            <input type="checkbox" checked="true" id="useValentinCheckbox" />
+        </label>
+        <label>
+            Lucas
+            <input type="checkbox" checked="false" id="useLucasCheckbox" />
+        </label>
+        <label>
+            Antoine
+            <input type="checkbox" checked="false" id="useAntoineCheckbox" />
+        </label>
+        </div>
+        <h1 id="settings">Game settings</h1>
+        <div id="settings">
+        <label class="info-label">
+            <span>
+            Shuffle character layers
+            <img
+                src="img/info-icon.svg"
+                title="Shuffles image layers to make sure that not all Valentin's are on top of Mario's, not all Mario's are on top of Valentin's, etc."
+                class="label-info-icon"
+            /></span>
+            <input type="checkbox" checked="true" id="shuffleLayersCheckbox" />
+        </label>
+        <label class="info-label">
+            <span>
+            Use interpolation
+            <img
+                src="img/info-icon.svg"
+                title="Smooths out image movement (useful for movement thresholds above 3, may slightly impact performance)"
+                class="label-info-icon"
+            /></span>
+            <input type="checkbox" id="useInterpolationCheckbox" />
+        </label>
+        <label class="info-label">
+            <span>
+            Show FPS
+            <img
+                src="img/info-icon.svg"
+                title="Note: By default, Find Luigi (and most other websites) are capped at your monitor's refresh rate"
+                class="label-info-icon"
+            /></span>
+            <input type="checkbox" checked="true" id="showFPSCheckbox" />
+        </label>
+        <label class="info-label">
+            <span>
+            Movement threshold
+            <img
+                src="img/info-icon.svg"
+                title="How many pixels a character must move before updating"
+                class="label-info-icon"
+            /></span>
+            <input
+            type="text"
+            placeholder="Input number"
+            value="1"
+            min="0"
+            oninput="this.value =
+    !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null"
+            id="movementThresholdField"
+            />
+        </label>
+        <label class="info-label">
+            <span>
+            Minimum characters
+            <img
+                src="img/info-icon.svg"
+                title="Minimum amount of character that can appear on screen"
+                class="label-info-icon"
+            /></span>
+            <input
+            type="text"
+            placeholder="Input number"
+            value="50"
+            min="1"
+            max="500"
+            oninput="this.value =
+    !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null"
+            id="minimumIconsField"
+            />
+        </label>
+        <label class="info-label">
+            <span>
+            Maximum characters
+            <img
+                src="img/info-icon.svg"
+                title="Maximum amount of character that can appear on screen"
+                class="label-info-icon"
+            /></span>
+            <input
+            type="text"
+            placeholder="Input number"
+            value="100"
+            min="1"
+            max="500"
+            oninput="this.value =
+    !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null"
+            id="maximumIconsField"
+            />
+        </label>
+        <label id="speedFieldLabel">
+            Speed (value: 200)
+            <input
+            type="range"
+            id="speedField"
+            value="200"
+            step="50"
+            min="50"
+            max="1000"
+            />
+        </label>
+        </div>
+
+        <h1 id="settings">Audio settings</h1>
+        <div id="settings">
+        <label>
+            Music
+            <input type="checkbox" checked="true" id="musicCheckbox" />
+        </label>
+        <label>
+            SFX
+            <input type="checkbox" checked="true" id="sfxCheckbox" />
+        </label>
+        </div>
+
+        <button id="applySettingsButton">Apply settings</button>
+    </body>
+</html>

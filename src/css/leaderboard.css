@@ -1,0 +1,70 @@
+.place-1 {
+  color: gold;
+}
+
+.place-2 {
+  color: silver;
+}
+.place-3 {
+  color: #cd7f32; /* Bronze color */
+}
+
+#leaderboard-container {
+  width: 80%; /* Or a fixed width like 400px */
+  max-width: 500px; /* Maximum width */
+  margin: 40px auto; /* Centers the container horizontally, adds top/bottom margin */
+  border: 2px solid white; /* Main outer border */
+  border-radius: 0; /* Sharp corners like the image */
+  background-color: black; /* Black background for the container */
+  padding: 0; /* Remove padding if borders are handled by entries */
+  text-align: center; /* Center the h3 title */
+}
+
+#leaderboard-container h3 {
+  margin-top: 0;
+  color: white; /* White text for the title */
+  padding: 10px;
+  border-bottom: 2px solid white; /* Line below the title */
+  margin-bottom: 0; /* Remove default margin */
+}
+
+#leaderboard {
+  margin-top: 0; /* Remove margin if title has border */
+  /* The #leaderboard div itself doesn't need much styling if entries handle borders */
+}
+
+.leaderboard-entry {
+  display: flex; /* Use flexbox to align name and score */
+  color: white; /* White text for entries */
+  background-color: black; /* Ensure black background for entries */
+  border-bottom: 1px solid white; /* Horizontal line between entries */
+  margin-bottom: 0; /* Remove margin, borders will separate */
+}
+
+/* Style for the header row specifically if needed, e.g., thicker bottom border */
+.leaderboard-entry:first-child {
+  font-weight: bold; /* Make the header row bold */
+  /* border-bottom: 2px solid white; */ /* Optional: thicker line for header */
+}
+
+.leaderboard-entry:last-child {
+  border-bottom: none; /* No bottom border for the last actual data entry */
+}
+
+.leaderboard-entry .name,
+.leaderboard-entry .score {
+  padding: 10px; /* Padding inside each cell */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.leaderboard-entry .name {
+  text-align: left;
+  flex-grow: 1; /* Allows name to take up available space */
+  border-right: 1px solid white; /* Vertical line separating name and score */
+}
+
+.leaderboard-entry .score {
+  text-align: right;
+  min-width: 80px; /* Ensure score column has some width, adjust as needed */
+  flex-shrink: 0; /* Prevent score column from shrinking too much */
+}

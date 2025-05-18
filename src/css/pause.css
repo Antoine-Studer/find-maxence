@@ -1,0 +1,37 @@
+#pauseMenu {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.85);
+    color: white;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Center vertically */
+    padding: 15px;
+    border-radius: 0; /* Remove border-radius for full overlay */
+    border: none;     /* Remove border for overlay */
+}
+
+#pauseButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 20;
+    color: white;
+    background-color: #303030;;
+    border: solid 2px #fca916;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: bold;
+    font-size: 1em;
+    transition: background 0.2s ease;
+    cursor: pointer;
+    display: 	none;
+}
+
+#pauseButton:hover {
+  background: #303030;
+  border-color: #505050;
+}

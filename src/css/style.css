@@ -1,12 +1,11 @@
+
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
 
-html,
-body {
-  font-family: "JetBrains Mono", monospace;
-  height: auto;
-  min-height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 body {
@@ -27,26 +26,35 @@ body {
 }
 
 #game {
-  --r: 16 / 9;
-  aspect-ratio: var(--r);
-  width: 90vw;
-  max-width: 960px;
-  transform-origin: center;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #181818;
+  z-index: 1;
   display: flex;
-  flex-direction: row;
-  margin: auto;
-  flex: 1;
-  position: relative;
-  background-color: black;
-  overflow: hidden;
+  flex-direction: row; /* row for left stats, right game */
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+#gameCanvasContainer, #gameCanvas {
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #gameCanvasContainer {
+  flex: 1 1 0;
+  height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  flex: 1;
-  height: 100%;
+  justify-content: center;
+  background: #181818 !important;
 }
 
 #gameCanvas {
@@ -60,30 +68,9 @@ body {
   image-rendering: crisp-edges;
   max-width: 100%;
   max-height: 100%;
+  background: black !important;
 }
 
-#game:-webkit-full-screen,
-#game:-moz-full-screen,
-#game:-ms-fullscreen,
-#game:fullscreen {
-  width: 100vw;
-  height: 100vh;
-  max-width: none;
-  max-height: none;
-  object-fit: contain;
-  margin: 0;
-  flex-direction: row;
-  display: flex;
-}
-
-#game:-webkit-full-screen #gameCanvas,
-#game:-moz-full-screen #gameCanvas,
-#game:-ms-fullscreen #gameCanvas,
-#game:fullscreen #gameCanvas {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
 
 /* This should scale the game to make it more playable for people on resolutions 1440p and up
 * not sure if thats a call i should make though since i dont have any displays with that resolution
@@ -112,7 +99,7 @@ body {
   font-size: 1em;
   background: #202020;
   color: white;
-  border: 2px solid #404040;
+  border: 2px solid #fca916;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s ease;
@@ -121,28 +108,6 @@ body {
 #startButton:hover {
   background: #303030;
   border-color: #505050;
-}
-
-#fullscreenButton {
-  font-family: "JetBrains Mono", monospace;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 1em;
-  z-index: 10;
-  padding: 5px 10px;
-  background: rgba(32, 32, 32, 0.6);
-  color: white;
-  border: 1px solid rgba(64, 64, 64, 0.8);
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  user-select: none;
-}
-
-#fullscreenButton:hover {
-  background: rgba(48, 48, 48, 0.7);
-  border-color: rgba(80, 80, 80, 0.9);
 }
 
 #unfocusedNotice {
@@ -159,7 +124,7 @@ body {
   padding: 20px;
   width: 300px;
   border-radius: 8px;
-  border: 3px solid crimson;
+  border: 3px solid #fca916;
 }
 
 #unfocusedNotice h1 {
@@ -342,13 +307,19 @@ footer {
 }
 
 #gameStats {
-  width: 200px;
-  border-right: red solid 2px;
-  padding: 15px;
+  width: 220px;
+  min-width: 180px;
+  max-width: 300px;
+  border-right: #fca916 solid 2px;
+  padding: 15px 0 15px 15px;
   background-color: #202020;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  position: relative;
+  height: 100vh;
+  box-sizing: border-box;
+  z-index: 2;
 }
 
 #gameStats h3 {
@@ -357,7 +328,7 @@ footer {
   border-bottom: 1px solid #404040;
   padding-bottom: 8px;
   margin-bottom: 8px;
-  color: #ff5555;
+  color: #fca916;
   font-size: 1.2rem;
 }
 
@@ -394,16 +365,23 @@ footer {
   color: #5555ff;
 }
 
-#gameOver {
-  display: none;
-  position: absolute;
-  top: 50%;
+
+
+#timer {
+  position: fixed;
+  top: 24px;
   left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: rgba(0, 0, 0, 0.8);
-  padding: 20px;
-  border: 2px solid red;
-  border-radius: 8px;
-  text-align: center;
-  z-index: 10;
+  transform: translateX(-50%);
+  z-index: 20;
 }
+
+#timeRemaining {
+  font-size: 3em;
+  font-weight: bold;
+  color: #fca916;
+  margin-bottom: 10px;
+  display: inline-block;
+  font-family: 'Papyrus', Courier, monospace !important;
+}
+
+

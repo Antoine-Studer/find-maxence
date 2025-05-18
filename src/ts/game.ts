@@ -47,12 +47,22 @@ class Game {
   private additionalTime: number = 5;
   private loseTime: number = 10;
   private lastTimestamp: number = 0;
+  private isInvincible: boolean = false; // Add this line
+  private invincibilityDuration: number = 500; // 0.5 seconds, adjust as needed
+  private handleSubmitScoreBound: EventListener | null = null;
+
+  private speed: number = 100;
+  private minIcons: number = 5;
+  private maxIcons: number = 5;
+
+  private bonusText: { x: number; y: number; value: string; opacity: number; start: number } | null = null;
 
   constructor(audioManager: AudioManager, settingsManager: SettingsManager) {
     this.canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
     this.audioManager = audioManager;
     this.settings = settingsManager.getSettings();
+    console.log("Settings:", this.settings);
     this.worker = new Worker(
       new URL("./animation-worker.ts?worker&url", import.meta.url),
       { type: "module" },
@@ -72,7 +82,7 @@ class Game {
       this.timer -= deltaTime;
       
       // Update timer display here
-      const timerElement = document.getElementById('time-remaining');
+      const timerElement = document.getElementById('timeRemaining');
       if (timerElement) {
         timerElement.textContent = this.timer.toPrecision(2).toString();
         if (this.timer <= 0) {
@@ -105,7 +115,7 @@ class Game {
   }
 
   private loadCharacterImages() {
-    ["maxence", "timothee", "valentin", "lucas", "antoine"].forEach((name) => {
+    ["maxence", "timothee", "valentin", "lucas", "antoine", "martin", "garance"].forEach((name) => {
       const img = new Image();
       img.src = `img/character/${name}.png`;
       this.characterImages[name] = img;
@@ -127,10 +137,87 @@ class Game {
     window.addEventListener("focus", this.handleWindowFocus.bind(this));
     window.addEventListener("blur", this.handleWindowBlur.bind(this));
 
-    document.getElementById("restartButton")?.addEventListener("click", () => {
-      this.restartGame();
+    const restartButtons = document.getElementsByClassName("restart-button");
+    for (let i = 0; i < restartButtons.length; i++) {
+      const restartButton = restartButtons[i] as HTMLButtonElement;
+      restartButton.addEventListener("click", () => {
+        document.getElementById("saveScore")!.style.display = "block";
+        document.getElementById('pauseMenu')!.style.display = "none";
+        this.points = 0;
+        this.timer = 60;
+        document.getElementById("girafe")!.style.display = "none";
+        document.getElementById("girafeNumber")!.style.display = "none";
+        for (let i = 0; i < 5; i++) {
+          const beerElement = document.getElementById(`biere-${i}`);
+          if (beerElement) {
+            beerElement.style.display = "none";
+          }
+        }
+        this.restartGame();
     });
-  }
+
+    // Remove previous submit event listener if it exists
+    const submitBtn = document.getElementById('submit');
+    if (submitBtn && this.handleSubmitScoreBound) {
+      submitBtn.removeEventListener('click', this.handleSubmitScoreBound);
+    }
+    // Create and add the new event listener
+    this.handleSubmitScoreBound = () => {
+      const nameInput = document.getElementById('name') as HTMLInputElement | null;
+      const name = nameInput ? nameInput.value.trim() : "";
+      // Check for empty name
+      if (!name) {
+        alert("Name is required.");
+        return;
+      }
+      // Check for name length
+      if (name.length > 20) {
+        alert("Name must be less than 20 characters.");
+        return;
+      }
+      const score = this.points;
+      fetch('http://localhost:3000/add-score', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: name, score: score }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(err => { 
+            throw new Error(err.error || `Server error: ${response.statusText}`);
+          }).catch(() => { 
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Score submitted successfully:', data);
+        const gameOverFormElement = document.getElementById("gameOverForm");
+        if (gameOverFormElement) {
+          gameOverFormElement.style.display = "none";
+        }
+        const gameOverElement = document.getElementById("gameOver");
+        if (gameOverElement) {
+          gameOverElement.style.display = "block";
+        }
+      })
+      .catch(error => {
+        // Display error to user
+        alert(error.message || 'Error submitting score.');
+        console.error('Error submitting score:', error);
+      });
+    };
+    if (submitBtn) {
+      submitBtn.addEventListener('click', this.handleSubmitScoreBound);
+    }
+
+    document.getElementById("saveScore")?.addEventListener("click", () => {
+      document.getElementById("score")!.textContent = `${this.points}`;
+    });
+    }}
 
   private handleWorkerMessage(event: MessageEvent) {
     const { type, positions } = event.data;
@@ -151,14 +238,38 @@ class Game {
     this.characters.forEach(({ img, x, y, width, height }) => {
       this.ctx.drawImage(img, x, y, width, height);
     });
+
+    // Affiche le texte bonus si besoin
+    if (this.bonusText) {
+      const elapsed = performance.now() - this.bonusText.start;
+      if (elapsed < 1200) {
+        this.ctx.save();
+        this.ctx.globalAlpha = 1 - elapsed / 1200;
+        this.ctx.font = "bold 32px Arial";
+        // Couleur verte pour bonus, rouge pour malus
+        if (this.bonusText.value.startsWith('-')) {
+          this.ctx.fillStyle = "red";
+        } else {
+          this.ctx.fillStyle = "green";
+        }
+        this.ctx.strokeStyle = "#000";
+        this.ctx.lineWidth = 3;
+        const textX = this.bonusText.x;
+        const textY = this.bonusText.y - elapsed / 3;
+        this.ctx.strokeText(this.bonusText.value, textX, textY);
+        this.ctx.fillText(this.bonusText.value, textX, textY);
+        this.ctx.restore();
+      } else {
+        this.bonusText = null;
+      }
+    }
   }
 
   private addCharacter(character: CharacterConfig, workerIcons: WorkerIcon[]) {
     const randomX = Math.random() * (this.canvas.width - character.width);
     const randomY = Math.random() * (this.canvas.height - character.height);
-    const randomDx = (Math.random() - 0.5) * this.settings.speed;
-    const randomDy = (Math.random() - 0.5) * this.settings.speed;
-
+    const randomDx = (Math.random() - 0.5) * this.speed + this.points * 7;
+    const randomDy = (Math.random() - 0.5) * this.speed + this.points * 7;
     this.characters.push({
       img: this.characterImages[character.name],
       x: randomX,
@@ -201,10 +312,11 @@ class Game {
       this.settings.useValentin && { name: "valentin", width: 60, height: 83 },
       this.settings.useLucas && { name: "lucas", width: 60, height: 83 },
       this.settings.useAntoine && { name: "antoine", width: 60, height: 83 },
+      this.settings.useMartin && { name: "martin", width: 60, height: 83 },
+      this.settings.useGarance && { name: "garance", width: 60, height: 83 },
     ].filter(Boolean) as CharacterConfig[];
-
-    const minIcons = this.settings.minIcons;
-    const maxIcons = this.settings.maxIcons;
+    const minIcons = this.minIcons + this.points; // Ensure at least one character is added;
+    const maxIcons = this.maxIcons + this.points * 2; // Ensure at least one character is added;
     const iconCount =
       Math.floor(Math.random() * (maxIcons - minIcons + 1)) + minIcons;
     const workerIcons: WorkerIcon[] = [];
@@ -237,6 +349,38 @@ class Game {
     this.animationFrameId = requestAnimationFrame(this.animateAll);
   }
 
+  private updateScore() {
+    console.log("Points:", this.points);
+    console.log("Time bonus:", this.additionalTime);
+    const numberGirafe = Math.floor(this.points / 5);
+    const numberBiere = this.points % 5;
+
+    for (let i = 0; i < numberBiere; i++) {
+      const beerElement = document.getElementById(`biere-${i}`);
+      if (beerElement) {
+        beerElement.style.display = "block";
+      }
+    }
+    if (this.points % 5 === 0 && this.points > 0) {
+      // Animation des 5 bières
+      for (let i = 0; i < 5; i++) {
+        document.getElementById(`biere-${i}`)!.style.display = "none";
+      }
+      document.getElementById("girafe")!.style.display = "block";
+
+    }
+
+    if (numberGirafe < 1) {
+      document.getElementById("girafeNumber")!.style.display = "none";
+    }
+    else if (numberGirafe < 2) {
+      document.getElementById("girafeNumber")!.style.display = "block";
+    }
+    document.getElementById('girafeNumber')!.textContent = numberGirafe.toString();
+
+  }
+
+
   private handleCanvasClick(event: MouseEvent) {
     const rect = this.canvas.getBoundingClientRect();
     const canvasWidth = this.canvas.width;
@@ -266,7 +410,21 @@ class Game {
         this.isGameRunning
       ) {
         // Found Maxence! Add time and handle success
-        this.timer += this.additionalTime; // Add time
+        this.bonusText = {
+          x: x + width / 2,
+          y: y,
+          value: `+${this.additionalTime}`,
+          opacity: 1,
+          start: performance.now(),
+        };
+
+        if (this.timer + this.additionalTime > 60) {
+          this.timer = 60; // Cap the timer at 60 seconds
+        }
+        else {
+
+          this.timer += this.additionalTime; // Add time
+        }
         this.isPaused = true; // Pause the timer
         
         cancelAnimationFrame(this.animationFrameId);
@@ -279,9 +437,7 @@ class Game {
           this.audioManager.playRandomCaughtSound();
         }
         this.points++;
-        console.log("Points:", this.points);
-        console.log("Time bonus:", this.additionalTime);
-        document.getElementById('level-number')!.textContent = this.points.toString();
+        this.updateScore();
         
         this.characters = this.characters.filter(
           (character) => character.img === this.characterImages.maxence,
@@ -293,8 +449,10 @@ class Game {
       }
     }
     
-    // If we get here, Maxence wasn't clicked
-    // Check for other characters and reduce time if needed
+    if (this.isInvincible) {
+      return;
+    }
+
     for (const character of this.characters) {
       const { x, y, width, height, img } = character;
       if (
@@ -302,17 +460,30 @@ class Game {
         clickX <= x + width &&
         clickY >= y &&
         clickY <= y + height &&
-        img !== this.characterImages.maxence
+        img !== this.characterImages.maxence &&
+        this.isGameRunning // Ensure game is running for penalty
       ) {
+
+        this.bonusText = {
+          x: x + width / 2,
+          y: y,
+          value: `-${this.loseTime}`,
+          opacity: 1,
+          start: performance.now(),
+        };
         // Wrong character clicked, lose time
         this.timer -= this.loseTime;
         console.log("Time penalty:", this.loseTime);
         
-        // Check if time ran out
         if (this.timer <= 0) {
           this.timer = 0;
           this.gameOver();
         }
+        // Activate invincibility
+        this.isInvincible = true;
+        setTimeout(() => {
+          this.isInvincible = false;
+        }, this.invincibilityDuration);
         
         return; // Exit after handling the wrong click once
       }
@@ -353,6 +524,22 @@ class Game {
       this.worker.postMessage({ type: "pause", paused: true });
     }
   }
+  public pause() {
+    this.isGameRunning = false;
+    // Save the time when paused
+    this.pauseTimestamp = performance.now();
+  }
+  public resume() {
+    this.isGameRunning = true;
+    // Adjust lastTimestamp so timer doesn't jump
+    if (this.pauseTimestamp) {
+      const now = performance.now();
+      this.lastTimestamp += (now - this.pauseTimestamp);
+      this.pauseTimestamp = undefined;
+    }
+    this.animateAll(performance.now());
+  }
+  private pauseTimestamp?: number;
 
   private shuffleArray<T>(array: T[]): T[] {
     // Fisher-Yates shuffle
