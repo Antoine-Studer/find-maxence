@@ -176,7 +176,7 @@ class Game {
         return;
       }
       const score = this.points;
-      fetch('http://localhost:3000/add-score', {
+      fetch('/add-score', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
