@@ -45,6 +45,16 @@ app.post('/add-score', async (req, res) => {
     }
 });
 
+const path = require('path');
+
+// Sert les fichiers statiques du frontend (Vite build)
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Redirige les autres requêtes vers index.html (SPA)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
